@@ -25,6 +25,7 @@ contract LaunchpadFactory is Ownable {
     ) payable external returns (address) {
         require(msg.value == 0.01 ether, "0.01 ETH Fee is required");
         require(saleStart < saleEnd, "Invalid sale period");
+        require(saleEnd < vestingStart , "Vesting starts before sale end");
         require(vestingStart < vestingEnd, "Invalid vesting period");
         Launchpad launchpad = new Launchpad(
             token,
