@@ -15,6 +15,7 @@ contract LaunchpadFactory is Ownable {
 
     /// @notice Creates a new Launchpad contract
     function createLaunchpad(
+        address launchpadOwner,
         address token,
         uint256 totalAmount,
         uint256 saleStart,
@@ -23,11 +24,12 @@ contract LaunchpadFactory is Ownable {
         uint256 vestingEnd,
         uint256 ratio
     ) payable external returns (address) {
-        require(msg.value == 0.01 ether, "0.01 ETH Fee is required");
+        require(msg.value == 0.01 ether, "0.01 ETH fee is required");
         require(saleStart < saleEnd, "Invalid sale period");
         require(saleEnd < vestingStart , "Vesting starts before sale end");
         require(vestingStart < vestingEnd, "Invalid vesting period");
         Launchpad launchpad = new Launchpad(
+            launchpadOwner,
             token,
             totalAmount,
             saleStart,
@@ -36,7 +38,7 @@ contract LaunchpadFactory is Ownable {
             vestingEnd,
             ratio
         );
-        emit LaunchpadCreated(msg.sender, address(launchpad), token);
+        emit LaunchpadCreated(launchpadOwner, address(launchpad), token);
         return address(launchpad);
     }
 
@@ -58,8 +60,9 @@ interface IERC20 {
 
 /// @title A simple Launchpad contract
 /// @notice You can use this contract to run a token sale with vesting
-contract Launchpad is Ownable{
+contract Launchpad {
     IERC20 public token;
+    address public owner;
     uint256 public totalAmount;
     uint256 public saleStart;
     uint256 public saleEnd;
@@ -68,6 +71,11 @@ contract Launchpad is Ownable{
     uint256 public ratio;
     mapping(address => uint256) public amountSold;
     mapping(address => uint256) public claimed;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function");
+        _;
+    }
 
     modifier saleActive() {
         require(
@@ -92,6 +100,7 @@ contract Launchpad is Ownable{
     /// @param _ratio Amount of tokens given per ETH paid
     constructor(
         address _token,
+        address _owner,
         uint256 _totalAmount,
         uint256 _saleStart,
         uint256 _saleEnd,
@@ -100,6 +109,7 @@ contract Launchpad is Ownable{
         uint256 _ratio
     ) {
         token = IERC20(_token);
+        owner = _owner;
         totalAmount = _totalAmount;
         saleStart = _saleStart;
         saleEnd = _saleEnd;
@@ -108,11 +118,15 @@ contract Launchpad is Ownable{
         ratio = _ratio;
     }
 
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0), "Can't transfer to zero address");
+        owner = newOwner;
+    }
+
     /// @notice Owner can use this to withdraw ETH
     function withdraw() external onlyOwner {
         uint256 balance = address(this).balance;
-        address payable _owner = payable(owner());
-        payable(_owner).transfer(balance);
+        payable(owner).transfer(balance);
     }
 
     /// @notice Amount of claimable tokens
