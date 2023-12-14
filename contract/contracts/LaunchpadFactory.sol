@@ -155,14 +155,10 @@ contract Launchpad {
 
     /// @notice Users can buy token during active sale
     /// @dev no whale protection or allocations to not complicate things
-    function buy(uint256 desiredTokens) external payable saleActive {
+    function buy() external payable saleActive {
+        uint256 desiredTokens = msg.value * ratio;
         require(desiredTokens > 0, "Token amount must be > 0");
         require(totalAmount >= desiredTokens, "Not enough tokens left");
-        uint256 ethRequired = desiredTokens / ratio;
-        require(
-            ethRequired > 0 && ethRequired <= msg.value,
-            "Insufficient ETH sent"
-        );
         amountSold[msg.sender] += desiredTokens;
         totalAmount -= desiredTokens;
     }
