@@ -166,6 +166,7 @@ contract Launchpad {
     /// @notice Users can claim unlocked tokens
     function claim() external vestingStarted {
         uint256 claimableAmount = _claimable(msg.sender);
+        require(claimableAmount > 0, "Claimable amount must be > 0");
         claimed[msg.sender] += claimableAmount;
         token.transfer(msg.sender, claimableAmount);
     }
