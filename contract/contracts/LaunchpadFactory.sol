@@ -61,8 +61,8 @@ interface IERC20 {
 /// @title A simple Launchpad contract
 /// @notice You can use this contract to run a token sale with vesting
 contract Launchpad {
-    IERC20 public token;
     address public owner;
+    IERC20 public token;
     uint256 public totalAmount;
     uint256 public saleStart;
     uint256 public saleEnd;
@@ -91,6 +91,7 @@ contract Launchpad {
     }
 
     /// @notice Constructor function
+    /// @param _owner launchpad owner
     /// @param _token launching token
     /// @param _totalAmount Total amount sold
     /// @param _saleStart sale start timestamp
@@ -99,8 +100,8 @@ contract Launchpad {
     /// @param _vestingEnd vesting end timestamp
     /// @param _ratio Amount of tokens given per ETH paid
     constructor(
-        address _token,
         address _owner,
+        address _token,
         uint256 _totalAmount,
         uint256 _saleStart,
         uint256 _saleEnd,
@@ -108,8 +109,8 @@ contract Launchpad {
         uint256 _vestingEnd,
         uint256 _ratio
     ) {
-        token = IERC20(_token);
         owner = _owner;
+        token = IERC20(_token);
         totalAmount = _totalAmount;
         saleStart = _saleStart;
         saleEnd = _saleEnd;
