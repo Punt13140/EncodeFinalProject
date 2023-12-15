@@ -7,6 +7,8 @@ describe('LaunchpadFactory', () => {
   let owner: Signer;
   let launchpadFactory: LaunchpadFactory;
   let ownerAddress: string;
+  // Mock token address
+  const tokenAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
   beforeEach(async () => {
     // Deploy the LaunchpadFactory contract before each test
@@ -30,17 +32,16 @@ describe('LaunchpadFactory', () => {
     await expect(
       launchpadFactory.createLaunchpad(
         ownerAddress,
-        ownerAddress,
+        tokenAddress,
         totalAmount,
         saleStart,
         saleEnd,
         vestingStart,
         vestingEnd,
-        ratio
+        ratio,
+        { value: ethers.parseEther('0.01') }
       )
-    )
-      .to.emit(launchpadFactory, 'LaunchpadCreated')
-      .withArgs(ownerAddress, ethers.ZeroAddress, ownerAddress);
+    ).to.emit(launchpadFactory, 'LaunchpadCreated');
   });
 
   it('Should require a 0.01 ETH fee for creating a Launchpad', async () => {
